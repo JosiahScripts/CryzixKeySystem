@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cryzix Key System</title>
+  <style>
+    body {
+      background: #0f0f0f;
+      font-family: 'Segoe UI', sans-serif;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+    }
+    h1 {
+      color: #00bcd4;
+      font-size: 2.5rem;
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+    #supportBox {
+      background: #1c1c1c;
+      padding: 20px;
+      border-radius: 12px;
+      width: 80%;
+      max-width: 400px;
+      margin-bottom: 30px;
+      box-shadow: 0px 4px 10px rgba(0, 188, 212, 0.5);
+    }
+    #supportBox p {
+      font-size: 18px;
+      color: #fff;
+      margin-bottom: 15px;
+      line-height: 1.6;
+    }
+    #supportBox a {
+      text-decoration: none;
+      display: inline-block;
+      margin-top: 20px;
+    }
+    #supportBox button {
+      padding: 12px 20px;
+      background-color: #00bcd4;
+      border: none;
+      color: white;
+      font-size: 18px;
+      font-weight: bold;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+    }
+    #supportBox button:hover {
+      background-color: #0097a7;
+      transform: scale(1.05);
+      box-shadow: 0px 8px 16px rgba(0, 188, 212, 0.6);
+    }
+    #keyBox {
+      background: #1f1f1f;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0px 4px 10px rgba(0, 188, 212, 0.5);
+    }
+    #keyDisplay {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #00bcd4;
+      margin-bottom: 10px;
+    }
+    #copyBtn {
+      margin-top: 10px;
+      padding: 10px 18px;
+      background: #00bcd4;
+      border: none;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 6px;
+      transition: all 0.3s ease;
+    }
+    #copyBtn:hover {
+      background-color: #0097a7;
+      transform: scale(1.05);
+      box-shadow: 0px 8px 16px rgba(0, 188, 212, 0.6);
+    }
+    #countdown {
+      margin-top: 10px;
+      font-size: 16px;
+      color: #00ffcc;
+    }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+</head>
+<body>
+  <div id="supportBox">
+    <p>✨ Support us by completing an offer below! Every action helps us keep the Cryzix system running smoothly.</p>
+    <a href="https://lootdest.org/s?hbY8G6UQ&data=vKZ7P4VswueU5RD8FrkwWgPB97DE/9cpTDAwEQB5nOo%3D" target="_blank">
+      <button>Complete Offer and Support Cryzix</button>
+    </a>
+  </div>
+
+  <h1>Your Cryzix Key</h1>
+  <div id="keyBox">
+    <p>Your Key:</p>
+    <strong id="keyDisplay"></strong>
+    <br>
+    <button id="copyBtn" onclick="copyKey()">Copy Key</button>
+    <div id="countdown"></div>
+  </div>
+
+  <script>
+    // Anti-F12 script to prevent opening developer tools
+    (function() {
+      document.addEventListener("contextmenu", function(e) {
+        e.preventDefault();
+      });
+
+      document.addEventListener("keydown", function(e) {
+        if (e.key === "F12") {
+          window.location.href = "https://JosiahScripts.github.io/Cryzix"; // Redirect if F12 is pressed
+        }
+      });
+
+      window.addEventListener("devtoolschange", function() {
+        if (document.hidden) {
+          window.location.href = "https://JosiahScripts.github.io/Cryzix"; // Redirect if DevTools is opened
+        }
+      });
+    })();
+
+    const keyDisplay = document.getElementById("keyDisplay");
+    const countdownEl = document.getElementById("countdown");
+    const SALT = "Cryzixontop";
+
+    function generateRawKey(length = 10) {
+      const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+      let result = "";
+      for (let i = 0; i < length; i++) {
+        result += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      return result;
+    }
+
+    function hashKey(rawKey) {
+      return "Cryzix-" + CryptoJS.SHA256(rawKey + SALT).toString(CryptoJS.enc.Hex);
+    }
+
+    function startCountdown(expiry) {
+      function update() {
+        const diff = expiry - Date.now();
+        if (diff <= 0) {
+          localStorage.clear();
+          alert("Your key has expired.");
+          window.location.href = "index.html";
+          return;
+        }
+        const h = Math.floor(diff / 3.6e6),
+              m = Math.floor((diff % 3.6e6) / 6e4),
+              s = Math.floor((diff % 6e4) / 1e3);
+        countdownEl.textContent = `Key Expires In: ${h}h ${m}m ${s}s`;
+      }
+      update();
+      setInterval(update, 1000);
+    }
+
+    function initializeKey() {
+      let key = localStorage.getItem("cryzixKey");
+      let expiry = localStorage.getItem("keyExpire");
+      if (!key || !expiry) {
+        const rawKey = generateRawKey();
+        key = hashKey(rawKey);
+        expiry = Date.now() + 48 * 3600000;
+        localStorage.setItem("cryzixKey", key);
+        localStorage.setItem("keyExpire", expiry);
+      }
+      keyDisplay.textContent = key;
+      startCountdown(parseInt(expiry, 10));
+    }
+
+    function copyKey() {
+      const tempInput = document.createElement("input");
+      tempInput.value = keyDisplay.textContent;
+      document.body.appendChild(tempInput);
+      tempInput.select();
+      document.execCommand("copy");
+      document.body.removeChild(tempInput);
+      alert("Key copied to clipboard!");
+    }
+
+    if (localStorage.getItem("authorized") !== "true") {
+      alert("NICE TRY BUD");
+      window.location.href = "index.html";
+    }
+
+    initializeKey();
+  </script>
+</body>
+</html>
