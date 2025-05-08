@@ -54,11 +54,21 @@
     const btn2 = document.getElementById("btn2");
     const notif = document.getElementById("notification");
 
+    let openedAt;
+    let isAway = false;
+
     function delayCheck(btnKey, btnEl) {
-      const openedAt = Date.now();
+      openedAt = Date.now();
+      isAway = false;
+
+      // Track if the user leaves the page and comes back after 2 seconds.
+      window.addEventListener("blur", () => {
+        openedAt = Date.now();  // Reset the time when the user leaves.
+      });
+
       window.addEventListener("focus", () => {
         const timeAway = Date.now() - openedAt;
-        if (timeAway < 3000) {
+        if (timeAway < 2000) {
           notif.style.display = "block";
           setTimeout(() => notif.style.display = "none", 3000);
         } else {
